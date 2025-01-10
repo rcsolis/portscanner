@@ -14,8 +14,8 @@ var initialPort int
 var finalPort int
 
 const TIMEOUT_DEFAULT = 3
-const NUM_GOROUTINES = 10
-const CHANNEL_BUFFER = 10
+const NUM_GOROUTINES = 20
+const CHANNEL_BUFFER = 100
 
 func connect(address string, ports []int, scanWG *sync.WaitGroup, scanCH chan int) {
 	defer scanWG.Done()
@@ -52,13 +52,13 @@ func main() {
 	portsToScan = scanner.GeneratePorts(initialPort, finalPort)
 	log.Println("Scanning ", len(portsToScan), "ports")
 	// Calculate the number of ports to scan per goroutine
-	portsPerGoRoutine := (len(portsToScan) + NUM_GOROUTINES) / NUM_GOROUTINES
-	log.Println("Scanning ", portsPerGoRoutine, "per goroutine")
+	portsPerGoRoutine := len(portsToScan) / NUM_GOROUTINES
+	log.Println("Scanning ", portsPerGoRoutine, " ports per goroutine in ", NUM_GOROUTINES, " goroutines")
 	// Generates the goroutines to scan the ports
 	for i := 0; i < NUM_GOROUTINES; i++ {
 		startIndex := i * portsPerGoRoutine
 		endIndex := (i + 1) * portsPerGoRoutine
-		if endIndex > len(portsToScan) {
+		if endIndex >= len(portsToScan) {
 			endIndex = len(portsToScan)
 		}
 		scanWG.Add(1)
